@@ -45,3 +45,20 @@ Saran Perbaikan (Improvement): Solusinya adalah menggunakan prinsip Inheritance 
 Buat satu Base Class (misalnya BaseFunctionalTest) yang menangani semua konfigurasi umum (@LocalServerPort, setup URL, inisialisasi WebDriver).
 Test class lain (seperti CreateProductFunctionalTest atau CountProductFunctionalTest) cukup meng-extends Base Class tersebut.
 Dengan cara ini, kode setup hanya ditulis satu kali dan bisa digunakan ulang dengan bersih.
+
+
+
+Module 2 Reflection
+
+1. Code Quality Issues Fixed
+
+Selama mengerjakan exercise, saya memperbaiki beberapa masalah kualitas kode yang terdeteksi oleh PMD:
+
+- Modifier `public` yang tidak perlu pada method di interface `ProductService.java`: 
+Method yang dideklarasikan di Java interface secara otomatis bersifat `public abstract`. PMD menandai kelima method (`create`, `findAll`, `findById`, `update`, `delete`) karena memiliki modifier `public` yang redundan. Strategi saya cukup sederhana — saya menghapus keyword `public` dari setiap deklarasi method di interface tersebut, sehingga 5 warning sekaligus terselesaikan tanpa mengubah perilaku kode.
+
+- Meningkatkan test coverage hingga 100%. Menambahkan unit test untuk bagian kode yang sebelumnya belum ter-cover, termasuk test controller untuk `HomeController` dan `ProductController` menggunakan mock Mockito, test untuk `EshopApplication.main()`, serta test tambahan di service yang meng-cover branch pembuatan UUID (product ID null), branch update ketika produk tidak ditemukan, dan branch iterasi `findById` ketika `equals` mengembalikan false.
+
+2. Refleksi CI/CD Workflow
+
+Ya, saya percaya implementasi saat ini sudah memenuhi definisi Continuous Integration dan Continuous Deployment. Untuk Continuous Integration, setiap push dan pull request secara otomatis menjalankan test suite dan analisis kualitas kode (PMD), sehingga perubahan kode divalidasi sebelum di-merge. Ini berarti kode yang rusak atau regresi kualitas dapat terdeteksi lebih awal secara otomatis, tanpa intervensi manual. Untuk Continuous Deployment, workflow sudah mencakup deployment otomatis ke PaaS (Koyeb) setelah merge, yang berarti setelah kode lolos semua pengecekan dan di-merge, kode tersebut langsung dikirim ke production tanpa memerlukan langkah deployment manual terpisah. Secara keseluruhan, workflow ini membentuk pipeline CI/CD yang lengkap, mencakup building, testing, analyzing, dan deploying aplikasi secara otomatis.
