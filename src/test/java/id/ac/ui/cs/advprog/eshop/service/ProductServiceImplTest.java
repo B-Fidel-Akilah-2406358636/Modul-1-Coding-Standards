@@ -80,6 +80,22 @@ class ProductServiceImplTest {
     }
 
     @Test
+    void testFindByIdSkipsNonMatching() {
+        // Ada 2 produk, cari yang kedua agar branch equals==false juga ke-cover
+        Product other = new Product();
+        other.setProductId("other-id");
+        other.setProductName("Other Product");
+        other.setProductQuantity(5);
+
+        when(productRepository.findAll()).thenReturn(List.of(other, product).iterator());
+
+        Product foundProduct = productService.findById(product.getProductId());
+
+        assertNotNull(foundProduct);
+        assertEquals(product.getProductId(), foundProduct.getProductId());
+    }
+
+    @Test
     void testUpdateProduct() {
         // Setup mock
         when(productRepository.findAll()).thenReturn(List.of(product).iterator());
@@ -104,5 +120,36 @@ class ProductServiceImplTest {
 
         // Verify bahwa repository.delete dipanggil 1 kali
         verify(productRepository, times(1)).delete(product.getProductId());
+    }
+
+    @Test
+    void testCreateProductWithNullId() {
+        // Product tanpa ID (null) -> harus di-generate UUID
+        Product newProduct = new Product();
+        newProduct.setProductName("Sampo Cap Usep");
+        newProduct.setProductQuantity(50);
+
+        when(productRepository.create(newProduct)).thenReturn(newProduct);
+
+        Product createdProduct = productService.create(newProduct);
+
+        assertNotNull(createdProduct.getProductId());
+        verify(productRepository, times(1)).create(newProduct);
+    }
+
+    @Test
+    void testUpdateProductNotFound() {
+        // Setup mock agar repository mengembalikan iterator kosong
+        when(productRepository.findAll()).thenReturn(new ArrayList<Product>().iterator());
+
+        Product newProductData = new Product();
+        newProductData.setProductName("Sampo Cap Usep");
+        newProductData.setProductQuantity(50);
+
+        // Update produk yang tidak ada, tidak boleh error
+        productService.update("random-id", newProductData);
+
+        // Verify findAll dipanggil
+        verify(productRepository, times(1)).findAll();
     }
 }
