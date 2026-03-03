@@ -62,3 +62,21 @@ Method yang dideklarasikan di Java interface secara otomatis bersifat `public ab
 2. Refleksi CI/CD Workflow
 
 Ya, saya percaya implementasi saat ini sudah memenuhi definisi Continuous Integration dan Continuous Deployment. Untuk Continuous Integration, setiap push dan pull request secara otomatis menjalankan test suite dan analisis kualitas kode (PMD), sehingga perubahan kode divalidasi sebelum di-merge. Ini berarti kode yang rusak atau regresi kualitas dapat terdeteksi lebih awal secara otomatis, tanpa intervensi manual. Untuk Continuous Deployment, workflow sudah mencakup deployment otomatis ke PaaS (Koyeb) setelah merge, yang berarti setelah kode lolos semua pengecekan dan di-merge, kode tersebut langsung dikirim ke production tanpa memerlukan langkah deployment manual terpisah. Secara keseluruhan, workflow ini membentuk pipeline CI/CD yang lengkap, mencakup building, testing, analyzing, dan deploying aplikasi secara otomatis.
+
+
+Refleksi 3: Penerapan SOLID (Singkat)
+
+1) Prinsip yang diterapkan
+- SRP: Controller hanya urus HTTP, service urus bisnis, repository urus persistence dan CarController dipisah dari ProductController.
+- DIP: Service bergantung pada abstraksi `ProductRepository` dan di-inject lewat konstruktor sedangkan implementasi konkret dipisah ke `InMemoryProductRepository`.
+- ISP: Kontrak repository didefinisikan minimal (create/findById/update/delete) sesuai kebutuhan domain produk.
+
+2) Keuntungan menerapkan SOLID (contoh)
+- Mudah diganti: `ProductRepository` bisa diganti implementasi database tanpa ubah service/controller.
+- Lebih teruji: Konstruktor injection memudahkan mocking di test (contoh ProductServiceImplTest), sehingga regresi cepat terdeteksi.
+- Tanggung jawab jelas: Pemisahan CarController mencegah product flow tercampur dengan car flow, membuat perubahan fitur lebih lokal.
+
+3) Kerugian jika SOLID diabaikan (contoh)
+- Ketergantungan kaku: Jika service langsung memakai list internal, pindah ke database akan memerlukan ubahan besar di banyak kelas.
+- Sulit diuji: Tanpa abstraksi repository, unit test harus memanipulasi state global atau memakai real storage sehingga lambat/rapuh.
+- Efek samping silang: Menggabungkan controller (seperti sebelumnya CarController mewarisi ProductController) bisa membuat routing dan logika saling memengaruhi, meningkatkan risiko bug.
