@@ -1,27 +1,18 @@
 package id.ac.ui.cs.advprog.eshop.repository;
 
 import id.ac.ui.cs.advprog.eshop.model.Product;
-import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 
-@Repository
-public class ProductRepository {
-    private List<Product> productData = new ArrayList<>();
+public interface ProductRepository {
 
-    public Product create(Product product){
-        productData.add(product);
-        return product;
-    }
+    Product create(Product product);
 
-    public Iterator<Product> findAll() {
-        return productData.iterator();
-    }
+    Iterator<Product> findAll();
 
-    //function untuk delete
-    public void delete(String productId) {
-        productData.removeIf(product -> product.getProductId().equals(productId));
-    }
+    Product findById(String productId);
+
+    Product update(String productId, Product product);
+
+    void delete(String productId);
 }

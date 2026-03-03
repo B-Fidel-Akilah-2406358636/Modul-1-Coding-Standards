@@ -1,25 +1,22 @@
 package id.ac.ui.cs.advprog.eshop.repository;
 
 import id.ac.ui.cs.advprog.eshop.model.Product;
+import id.ac.ui.cs.advprog.eshop.repository.InMemoryProductRepository;
+import id.ac.ui.cs.advprog.eshop.repository.ProductRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.junit.jupiter.MockitoExtension;
-//import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.util.Iterator;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@ExtendWith(MockitoExtension.class)
 class ProductRepositoryTest {
 
-    @InjectMocks
-    ProductRepository productRepository;
+    private ProductRepository productRepository;
 
     @BeforeEach
     void setUp() {
+        productRepository = new InMemoryProductRepository();
     }
 
     @Test
@@ -77,8 +74,9 @@ class ProductRepositoryTest {
         productRepository.create(product);
 
 
-        product.setProductName("Sampo Cap Usep");
-        product.setProductQuantity(50);
+    product.setProductName("Sampo Cap Usep");
+    product.setProductQuantity(50);
+    productRepository.update(product.getProductId(), product);
 
        //verifikasi
         Iterator<Product> productIterator = productRepository.findAll();
