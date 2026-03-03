@@ -9,8 +9,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -56,61 +54,43 @@ class ProductServiceImplTest {
 
     @Test
     void testFindById() {
-        // Setup mock agar repository mengembalikan iterator berisi produk kita
-        when(productRepository.findAll()).thenReturn(List.of(product).iterator());
-
+        when(productRepository.findById(product.getProductId())).thenReturn(product);
 
         Product foundProduct = productService.findById(product.getProductId());
 
-        // verifikasi
         assertNotNull(foundProduct);
         assertEquals(product.getProductId(), foundProduct.getProductId());
+        verify(productRepository, times(1)).findById(product.getProductId());
     }
 
     @Test
     void testFindByIdNotFound() {
-        // Setup mock agar repository mengembalikan iterator kosong
-        when(productRepository.findAll()).thenReturn(new ArrayList<Product>().iterator());
-
+        when(productRepository.findById("random-id")).thenReturn(null);
 
         Product foundProduct = productService.findById("random-id");
 
-        // verifikasi
         assertNull(foundProduct);
-    }
-
-    @Test
-    void testFindByIdSkipsNonMatching() {
-        // Ada 2 produk, cari yang kedua agar branch equals==false juga ke-cover
-        Product other = new Product();
-        other.setProductId("other-id");
-        other.setProductName("Other Product");
-        other.setProductQuantity(5);
-
-        when(productRepository.findAll()).thenReturn(List.of(other, product).iterator());
-
-        Product foundProduct = productService.findById(product.getProductId());
-
-        assertNotNull(foundProduct);
-        assertEquals(product.getProductId(), foundProduct.getProductId());
+        verify(productRepository, times(1)).findById("random-id");
     }
 
     @Test
     void testUpdateProduct() {
-        // Setup mock
-        when(productRepository.findAll()).thenReturn(List.of(product).iterator());
+        when(productRepository.update(eq(product.getProductId()), any(Product.class))).thenAnswer(invocation -> {
+            Product newData = invocation.getArgument(1);
+            product.setProductName(newData.getProductName());
+            product.setProductQuantity(newData.getProductQuantity());
+            return product;
+        });
 
-        // data baru untuk update
         Product newProductData = new Product();
         newProductData.setProductName("Sampo Cap Usep");
         newProductData.setProductQuantity(50);
 
-        // Exercise
         productService.update(product.getProductId(), newProductData);
 
-        // Verify bahwa data produk asli telah berubah
         assertEquals("Sampo Cap Usep", product.getProductName());
         assertEquals(50, product.getProductQuantity());
+        verify(productRepository, times(1)).update(product.getProductId(), newProductData);
     }
 
     @Test
@@ -139,17 +119,14 @@ class ProductServiceImplTest {
 
     @Test
     void testUpdateProductNotFound() {
-        // Setup mock agar repository mengembalikan iterator kosong
-        when(productRepository.findAll()).thenReturn(new ArrayList<Product>().iterator());
+        when(productRepository.update(eq("random-id"), any(Product.class))).thenReturn(null);
 
         Product newProductData = new Product();
         newProductData.setProductName("Sampo Cap Usep");
         newProductData.setProductQuantity(50);
 
-        // Update produk yang tidak ada, tidak boleh error
         productService.update("random-id", newProductData);
 
-        // Verify findAll dipanggil
-        verify(productRepository, times(1)).findAll();
+        verify(productRepository, times(1)).update("random-id", newProductData);
     }
 }
