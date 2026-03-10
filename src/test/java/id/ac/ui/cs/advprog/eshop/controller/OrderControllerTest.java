@@ -127,4 +127,18 @@ class OrderControllerTest {
         assertEquals("orderPayResult", viewName);
         verify(model, times(1)).addAttribute("payment", payment);
     }
+
+    @Test
+    void testOrderPayPostUnknownMethod() {
+        Map<String, String> requestParams = new HashMap<>();
+        requestParams.put("method", "Unknown");
+        Payment payment = new Payment(order, Payment.VOUCHER_CODE, Map.of("voucherCode", "ESHOP1234ABC5678"));
+        when(orderService.findById("order-1")).thenReturn(order);
+        when(paymentService.addPayment(eq(order), eq("Unknown"), anyMap())).thenReturn(payment);
+
+        String viewName = orderController.orderPayPost("order-1", "Unknown", requestParams, model);
+
+        assertEquals("orderPayResult", viewName);
+        verify(model, times(1)).addAttribute("payment", payment);
+    }
 }
