@@ -80,3 +80,40 @@ Refleksi 3: Penerapan SOLID (Singkat)
 - Ketergantungan kaku: Jika service langsung memakai list internal, pindah ke database akan memerlukan ubahan besar di banyak kelas.
 - Sulit diuji: Tanpa abstraksi repository, unit test harus memanipulasi state global atau memakai real storage sehingga lambat/rapuh.
 - Efek samping silang: Menggabungkan controller (seperti sebelumnya CarController mewarisi ProductController) bisa membuat routing dan logika saling memengaruhi, meningkatkan risiko bug.
+
+
+Refleksi 4: Test-Driven Development dan FIRST Principle
+
+1. Refleksi terhadap workflow TDD
+
+Setelah mengikuti alur TDD pada exercise ini, saya merasa workflow ini cukup berguna karena memaksa saya berpikir dari perilaku yang diharapkan terlebih dahulu, baru kemudian menulis implementasinya. Dengan cara ini, saya tidak langsung lompat ke coding, tetapi lebih dulu menentukan kontrak, skenario sukses, skenario gagal, dan edge case yang memang harus dilayani oleh kode.
+
+Kalau dikaitkan dengan pertanyaan reflektif dari Percival (2017), menurut saya TDD ini membantu saya menjawab beberapa hal penting: apakah test yang saya buat benar-benar memverifikasi kebutuhan, apakah test tersebut membantu saya menemukan desain yang lebih baik, dan apakah test memberi feedback cepat saat ada kesalahan. Dalam exercise ini, jawabannya cenderung iya. Contohnya, saat membuat `Order`, `OrderRepository`, dan `OrderServiceImpl`, urutan red-green-refactor membuat saya lebih cepat melihat method mana yang belum benar, sekaligus mendorong desain yang lebih rapi seperti pemakaian `OrderStatus` enum dan pemisahan tanggung jawab antara repository dan service.
+
+Walaupun begitu, menurut saya workflow ini masih belum sempurna di sisi saya. Kadang saya masih terlalu fokus membuat test agar pass, bukan memastikan test tersebut benar-benar mewakili risiko bisnis yang paling penting. Ada juga beberapa test yang masih sangat dekat dengan detail implementasi, sehingga kalau struktur internal berubah, test bisa ikut rapuh walaupun perilaku luarnya tetap benar.
+
+Hal yang perlu saya lakukan berikutnya saat membuat test adalah:
+- Lebih dulu menentukan objective test secara eksplisit: apa perilaku yang ingin dijaga dan risiko apa yang ingin dicegah.
+- Mengurangi ketergantungan test pada detail implementasi internal, dan lebih fokus ke input-output atau observable behavior.
+- Menambahkan perhatian lebih pada negative case dan edge case, bukan hanya happy path.
+- Melakukan refactor test setelah semua pass, supaya test code juga tetap bersih dan mudah dipahami.
+
+2. Refleksi terhadap FIRST principle
+
+Secara umum, test yang saya buat sudah cukup mengikuti prinsip F.I.R.S.T., walaupun masih ada beberapa bagian yang bisa diperbaiki.
+
+- Fast: Sebagian besar test sudah cepat karena menggunakan unit test dan mock Mockito, jadi tidak perlu menjalankan database atau komponen eksternal.
+- Independent: Tiap test pada umumnya berdiri sendiri karena data disiapkan ulang di `setUp`, sehingga tidak saling bergantung pada urutan eksekusi test lain.
+- Repeatable: Test bisa dijalankan berulang kali dengan hasil yang konsisten karena tidak bergantung pada network, waktu sistem, atau state eksternal yang berubah-ubah.
+- Self-validating: Ini sudah terpenuhi karena semua test menggunakan assertion yang jelas, jadi hasil pass/fail bisa diketahui otomatis tanpa pengecekan manual.
+- Timely: Prinsip ini juga cukup terpenuhi karena dalam exercise ini saya memang menulis test lebih dulu sebelum implementasi final dibuat.
+
+Meski begitu, saya masih melihat ruang perbaikan. Beberapa test masih terasa terlalu verbose dan ada yang memerlukan setup berulang. Kalau dibiarkan, lama-lama hal ini bisa mengurangi readability dan membuat maintenance test menjadi lebih berat.
+
+Ke depannya, supaya lebih konsisten dengan FIRST principle, saya perlu:
+- Membuat helper atau factory sederhana untuk data test yang sering dipakai berulang.
+- Menjaga agar satu test hanya memverifikasi satu perilaku utama.
+- Memakai nama test yang lebih konsisten dalam menjelaskan skenario dan ekspektasi.
+- Menghindari assertion atau verifikasi yang berlebihan jika tidak benar-benar relevan dengan tujuan test.
+
+Kesimpulannya, exercise ini menunjukkan bahwa TDD dan FIRST principle memang sangat membantu untuk menjaga kualitas kode, tetapi efektivitasnya tetap bergantung pada disiplin saya dalam memilih skenario yang tepat, menjaga test tetap sederhana, dan melakukan refactor bukan hanya pada production code tetapi juga pada test code.
