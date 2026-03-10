@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Payment Result</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container mt-4">
+    <h2>Payment Result</h2>
+    <div th:text="'Payment ID: ' + ${payment.id}"></div>
+    <div th:text="'Method: ' + ${payment.method}"></div>
+    <div th:text="'Status: ' + ${payment.status}"></div>
+</div>
+</body>
+</html>
